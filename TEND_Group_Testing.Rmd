@@ -1,0 +1,75 @@
+---
+title: "TEND_Group_Testing"
+author: "Me"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## R Markdown
+
+### Setting Working Directory
+
+```{r setup, include=TRUE, echo=FALSE}
+# Trying here(), which will also setwd based off your Rmd file
+library(here)
+here::i_am("TEND_Group_Testing.Rmd") # tells you full file path of script in it current location
+here() # returns file path of where the script is current saved
+setwd(here()) # sets the working directory to be wherever your source file or Rmd is
+
+getwd() # why not double check?
+```
+
+### Adding libraries/packages
+
+```{r prep, include=T, echo=F}
+library(tidyverse) 
+# Loads 'ggplot2' for data visualization. 'dplyr' for data manipulation, 'tidyr' for data tidying, 'readr' for data import, 'purrr' for functional programming, 'tibble' for (tibbles) a modern re-imagining of data frames, 'stringr' for strings,and 'forcats' for factors
+library(foreign) 
+# Read data stored by SPSS and Stata
+library(psych) 
+# For personality, psychometric, and psychological research, includes describe function and error bars
+library(stargazer) 
+# Handy regression tables
+library(readr)
+```
+
+### Load and Prepare Data
+
+```{r load in, include=TRUE, echo=TRUE}
+Brain_Data <- read.csv("Brain_Data.csv", header=T, sep=",", na.strings=c("NA", "888", "999"))
+Behavioral_Data<-read.csv("Bx_Data.csv", header=T, sep=",", na.strings=c("NA", "888", "999"))
+
+# Merge the data sets
+DATA <- merge(Brain_Data, Behavioral_Data, "ID", all=T)
+View(DATA)
+
+# The most common form of data is factors, numbers, strings and characters. They are all understood by R in different ways and certain functions need data to be in specific types to be understood correctly. Below are examples of rewriting the variable "ID" as a factor. And also creating a new variables Age as the numeric version of "Age.at.V1". To call a variable within a data set you say [name of dataset]$[name of varible], if the name of the variable does not exist, it will CREATE the variable in that data set. So in this case, "Age" did not exist, it was just Age.at.V1 and Age.at.V2 in our sheet, so instead we created a number version of "Age.at.V1" now called "Age"
+DATA$ID<- as.factor(DATA$ID)
+DATA$Age<- as.numeric(DATA$Age_at_Bx)
+
+# It will be a very good habit to not only check what form your data or columns are represented as, it will be very useful to learn the functions that change your code into a more effective form. 
+```
+
+### Start Exploring
+
+```{r being explore, include=TRUE, echo=TRUE}
+
+# First we will use colnames() to see the names of the variables of our data set
+# Assign the colnames to a variable through a data frame, to be accessed later saves this as a data frame
+Column_indexes <- data.frame(colnames(DATA))
+str(Column_indexes)
+
+# which() allows us to know the index a specific variable, ex "Gender" is our 10th column variable
+which(colnames(DATA) == "Gender")
+
+```
+
+### mutate()
+
+```{r mutate, include=T, echo=T}
+# coming from dplyr, the primary purpose of mutate() is to add new columns to a data frame based on calculations or transformations applied to existing columns. It allows you to perform various operations, such as mathematical calculations, conditional operations, string manipulations, and more. LEARN THIS FUNCTION
+```
+
+
