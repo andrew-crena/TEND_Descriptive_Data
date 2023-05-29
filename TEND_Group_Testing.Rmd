@@ -3,15 +3,15 @@ title: "TEND_Group_Testing"
 author: "Me"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ## R Markdown
 
 ### Setting Working Directory
 
-```{r setup, include=TRUE, echo=FALSE}
+```{r setup, include=TRUE, echo=TRUE}
 # Trying here(), which will also set working directory based off your Rmd file
 library(here)
 here::i_am("TEND_Group_Testing.Rmd") # tells you full file path script's current location
@@ -23,7 +23,7 @@ getwd() # why not double check?
 
 ### Adding libraries/packages
 
-```{r prep, include=T, echo=F}
+```{r prep, include=T, echo=T}
 library(tidyverse) 
 # Loads 'ggplot2' for data visualization. 'dplyr' for data manipulation, 'tidyr' for 
 # data tidying, 'readr' for data import, 'purrr' for functional programming, 'tibble' 
@@ -42,7 +42,7 @@ library(readr)
 
 ### Load and Prepare Data
 
-```{r load in, include=TRUE, echo=TRUE}
+```{r load in, include=FALSE}
 Brain_Data <- read.csv("Brain_Data.csv", header=T, sep=",", na.strings=c("NA", "888", "999"))
 Behavioral_Data<-read.csv("Bx_Data.csv", header=T, sep=",", na.strings=c("NA", "888", "999"))
 
@@ -120,7 +120,6 @@ write_xlsx(DATA_Final, "Example_DATA_Export.xlsx")
 ```
 
 ### Quick Check!
-
 ###### Johanna gave a very useful tip for quickly checking your data (certain columns, variables) before running anlyses or continuing with your exploratory analysis. Using View() and data.frame() in conjuction with one another gives you a quick glimpse at a quickly-made df of your specified columns.
 
 ```{r quick check, include=TRUE, echo=TRUE}
@@ -160,17 +159,21 @@ DATA$RADS_average<- rowMeans(DATA[,c("RADS_DM",	"RADS_AN",	"RADS_NS",	"RADS_SC")
 # Here is an example of a simple reshape from long to wide where time points already 
 # designated. For the sake of an example, let's say we called for View() after reading 
 # in our data, and we realize that our data is in long format and it needs to be in wide.
-## CCTG_Data_Long <- read.csv("fake_longitudinal_data.csv", header=T, sep=",", na.strings=c("NA", "888", "999"))
+## CCTG_Data_Long <- read.csv("fake_longitudinal_data.csv", header=T, sep=",", 
+##     na.strings=c("NA", "888", "999"))
 
-## CCTG_Data_Wide <- reshape(CCTG_Data_Long, idvar = "pid", timevar = "visit_cycle", direction = "wide")
+## CCTG_Data_Wide <- reshape(CCTG_Data_Long, idvar = "pid", timevar = "visit_cycle", 
+##     direction = "wide")
+```
 
 # FORLOOPS !!!
-
+```{r forloop ex, include=F, echo=T, warning=FALSE}
 # Complex example of reshape where "instances" of a measure need to be assigned with 
 # for loop!
+
 # Let's break down each point in this long function.Let's say our problem is that we 
 # are trying to convert long to wide, but we don't have a 'marker' or way of assigning 
-# our data to a certain visit, whether it be their first or fourth. In order to convert 
+# our data to a certain visit, whether it be their first or third. In order to convert 
 # to wide format, the computer needs to know
 
 # reading in data
@@ -178,7 +181,6 @@ DATA$RADS_average<- rowMeans(DATA[,c("RADS_DM",	"RADS_AN",	"RADS_NS",	"RADS_SC")
 ##                             na.strings=c("NA", "888", "999"))
 ## turning Contact_Num into missing values
 ## Contact_Log_Long$Contact_Num <- NA
-
 ## for(x in 1:length(Contact_Log_Long$pid)){
 ##   if (x == 1)
 ##     {Contact_Log_Long$Contact_Num[x] = 1}
@@ -188,7 +190,44 @@ DATA$RADS_average<- rowMeans(DATA[,c("RADS_DM",	"RADS_AN",	"RADS_NS",	"RADS_SC")
 ##  {Contact_Log_Long$Contact_Num[x] = 1}
 ##  }
 
-## MI_Data_Wide <- reshape(Contact_Log_Long, idvar = "pid", timevar = "Contact_Num", direction = "wide")
+## MI_Data_Wide <- reshape(Contact_Log_Long, idvar = "pid", timevar = "Contact_Num", 
+##     direction = "wide")
+```
+
+### forloop example
+##### Due to the importance of understanding forloops beyond the input-output, I will perform a similar function to the one that Johanna made, but on a different data frame either made by me or found online (or...both?)
+```{r forloop contd, include=F, echo=FALSE}
+# First, we create the necessary variables to construct the long format data frame. 
+# 'subID' is a vector that represents exactly what you think, subjects!
+subID <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+# 'eventID' is a vector that represents exactly what you think, events!
+eventID <- c("Event1", "Event2", "Event3")
+# Random values for each event
+ran_values <- rnorm(9)  
+
+long_practicdf <- data.frame(SubjectID = rep(subject_ids, each = 3),
+                      EventID = rep(event_ids, times = 3),
+                      Value = values)
+print(long_df)
+
+# Create a function to add visit number based on subject ID
+add_visit_number <- function(data) {
+  unique_subjects <- unique(data$SubjectID)
+  for (subject in unique_subjects) {
+    subject_rows <- data$SubjectID == subject
+    data$VisitNumber[subject_rows] <- 1:length(data$VisitNumber[subject_rows])
+  }
+  return(data)
+}
+
+# Add visit number using the function
+long_df <- add_visit_number(long_df)
+print(long_df)
+
+# Convert to wide format using reshape()
+wide_df <- reshape(long_df, idvar = "SubjectID", timevar = "EventID", direction = "wide")
+print(wide_df)
+
 ```
 
 ### mutate()
