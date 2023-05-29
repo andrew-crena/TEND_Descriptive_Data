@@ -11,7 +11,7 @@
 
 <meta name="author" content="Me" />
 
-<meta name="date" content="2023-05-27" />
+<meta name="date" content="2023-05-28" />
 
 <title>TEND_Group_Testing</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">TEND_Group_Testing</h1>
 <h4 class="author">Me</h4>
-<h4 class="date">2023-05-27</h4>
+<h4 class="date">2023-05-28</h4>
 
 </div>
 
@@ -404,27 +404,165 @@ Behavioral_Data&lt;-read.csv(&quot;Bx_Data.csv&quot;, header=T, sep=&quot;,&quot
 DATA &lt;- merge(Brain_Data, Behavioral_Data, &quot;ID&quot;, all=T)
 View(DATA)
 
-# The most common form of data is factors, numbers, strings and characters. They are all understood by R in different ways and certain functions need data to be in specific types to be understood correctly. Below are examples of rewriting the variable &quot;ID&quot; as a factor. And also creating a new variables Age as the numeric version of &quot;Age.at.V1&quot;. To call a variable within a data set you say [name of dataset]$[name of varible], if the name of the variable does not exist, it will CREATE the variable in that data set. So in this case, &quot;Age&quot; did not exist, it was just Age.at.V1 and Age.at.V2 in our sheet, so instead we created a number version of &quot;Age.at.V1&quot; now called &quot;Age&quot;
+# The most common form of data is factors, numbers, strings and characters. They are all 
+# understood by R in different ways and certain functions need data to be in specific types 
+# to be understood correctly. Below are examples of rewriting the variable &quot;ID&quot; as a 
+# factor. And also creating a new variables Age as the numeric version of &quot;Age.at.V1&quot;. 
+# To call a variable within a data set you say [name of dataset]$[name of varible], 
+# if the name of the variable does not exist, it will CREATE the variable in that data 
+# set. So in this case, &quot;Age&quot; did not exist, it was just Age.at.V1 and Age.at.V2 in our 
+# sheet, so instead we created a number version of &quot;Age.at.V1&quot; now called &quot;Age&quot;
 DATA$ID&lt;- as.factor(DATA$ID)
 DATA$Age&lt;- as.numeric(DATA$Age_at_Bx)
 
-# It will be a very good habit to not only check what form your data or columns are represented as, it will be very useful to learn the functions that change your code into a more effective form. </code></pre>
+# It will be a very good habit to not only check what form your data or columns are 
+# represented as, it will be very useful to learn the functions that change your code 
+# into a more effective form. 
+# 
+# attach() and detach()
+# If you have several variables you are manipulating and don&#39;t want to call the data 
+# frame they belong to each time ([data frame]$[varibale you want]) you can &quot;attach&quot; 
+# the data set so that R assumes all variables you call until you &quot;detach&quot; it will be 
+# in the data frame you are looking at. Below is an example of scoring a measurement 
+# of several components. Instead of having to write &quot;DATA$RADS_DM&quot; etc. for each subscale 
+# we are adding, we can just write the variable name. THIS WAS COPY+PASTED FROM 
+# JOHANNA&#39;s Rmd
+attach(DATA)
+DATA$RADS_total_rescore&lt;- RADS_DM + RADS_AN + RADS_NS + RADS_SC
+detach(DATA)
+View(DATA)
+# This would be useful in a situation where you are constantly having to call a column 
+# that is nested within a variable, or multiple. This could get confusing when you have 
+# performed significant exploration and have many variables in your environment
+
+# attach() and detach()
+# If you have several variables you are manipulating and don&#39;t want to call the data 
+# frame they belong to each time, you can use attach() and detach() to tell the software 
+# to call only to the data frame you specify. This prevents you from having to type out 
+# the long code that calls to a specific column nested in a data set
+attach(DATA)
+DATA$RADS_total_rescore&lt;- RADS_DM + RADS_AN + RADS_NS + RADS_SC
+detach(DATA)
+
+# recode() COPY+PASTED FROM JOHANNA&#39;S Rmd
+# #Here is how you can easily recode something using the &quot;recode&quot; function, the first 
+# value will be what the data currently is, and the second value is what you now want 
+# it to be. For example, we want to round up all of the scores in one column or variable, 
+# &#39;Puberty_rounded&#39;.
+DATA$Puberty_rounded &lt;- recode(DATA$Puberty, &#39;1.5&#39; = 2.0, &#39;2.5&#39; = 3.0, &#39;3.5&#39; = 4.0, 
+                               &#39;4.5&#39; = 5.0)
+# Dplyr has some very useful functions as well, but this is useful to know
+
+# creating new variable and column
+# This is how you can add a new variable with NA values
+DATA$attempt_reason&lt;- NA
+
+# assigning NA to conditions in a column
+# By using the variable assignment operator &#39;&lt;-&#39;, we can assign NA avlues to a specified 
+# column in a df, and add conditions so that only subjects with scores below 21, for 
+# example, get reassigned to NA
+DATA$Bx_to_Scan_Days[DATA$Bx_to_Scan_Days &gt; 21] &lt;- NA
+
+# rename()
+# If you wanted to rename variables or names of columns, you can change them with 
+# rename(), even doing multiple rows simultaneously
+DATA_Final&lt;- rename(DATA,&quot;Hx_Attempt&quot; = &quot;Hx.Attempt&quot;, &quot;Age_First.Attempt&quot; = &quot;Age.First.Attempt&quot;,&quot;Number_of_Attempts&quot; = &quot;Number.of.Attempts&quot;)
+
+# Let&#39;s now save our new data sheet using the writexl library
+library(writexl)
+write_xlsx(DATA_Final, &quot;Example_DATA_Export.xlsx&quot;)</code></pre>
+</div>
+<div id="quick-check" class="section level3">
+<h3>Quick Check!</h3>
+<div id="johanna-gave-a-very-useful-tip-for-quickly-checking-your-data-certain-columns-variables-before-running-anlyses-or-continuing-with-your-exploratory-analysis.-using-view-and-data.frame-in-conjuction-with-one-another-gives-you-a-quick-glimpse-at-a-quickly-made-df-of-your-specified-columns." class="section level6">
+<h6>Johanna gave a very useful tip for quickly checking your data
+(certain columns, variables) before running anlyses or continuing with
+your exploratory analysis. Using View() and data.frame() in conjuction
+with one another gives you a quick glimpse at a quickly-made df of your
+specified columns.</h6>
+<pre class="r"><code># This is a great way of double-checking that your preparation hasn&#39;t changed the data. 
+# Think of it as a way of looking twice before turning!
+View(data.frame(DATA_Final$ID, DATA_Final$CDRSR_total, DATA_Final$Sex, DATA_Final$Puberty))</code></pre>
+</div>
 </div>
 <div id="start-exploring" class="section level3">
 <h3>Start Exploring</h3>
 <pre class="r"><code># First we will use colnames() to see the names of the variables of our data set
-# Assign the colnames to a variable through a data frame, to be accessed later saves this as a data frame
+# Assign the colnames to a variable through a data frame, to be accessed later saves 
+# this as a data frame
 Column_indexes &lt;- data.frame(colnames(DATA))
 str(Column_indexes)</code></pre>
-<pre><code>## &#39;data.frame&#39;:    39 obs. of  1 variable:
+<pre><code>## &#39;data.frame&#39;:    42 obs. of  1 variable:
 ##  $ colnames.DATA.: chr  &quot;ID&quot; &quot;Group.x&quot; &quot;RSFC1&quot; &quot;RSFC2&quot; ...</code></pre>
-<pre class="r"><code># which() allows us to know the index a specific variable, ex &quot;Gender&quot; is our 10th column variable
+<pre class="r"><code># which() allows us to know the position of a specific variable, ex &quot;Gender&quot; is our 
+# 10th column variable
 which(colnames(DATA) == &quot;Gender&quot;)</code></pre>
 <pre><code>## [1] 10</code></pre>
+<pre class="r"><code># rowMeans()
+# We will now use rowMeans() to get the average of multiple variables. rowMeans can 
+# also have the &#39;na.rm&#39; logical argument, which, when TRUE, will go through your data 
+# and ignore any rows that have NAs in your specified columns.As you can 
+# see, we assign a new column with the &#39;&lt;-&#39; and &#39;$&#39; 
+DATA$RADS_average&lt;- rowMeans(DATA[,c(&quot;RADS_DM&quot;, &quot;RADS_AN&quot;,  &quot;RADS_NS&quot;,  &quot;RADS_SC&quot;)], 
+                             na.rm=TRUE)
+
+# WIDE vs LONG format CONVERSION , common in longitudinal studies/data
+
+# Long format will mean there are several rows per participant that are differentiated 
+# by time point. Wide is when you have one row per participant and the repeated measures 
+# and different column. Certain functions require the longitudinal data to be in wide or 
+# long format.
+# Here is an example of a simple reshape from long to wide where time points already 
+# designated. For the sake of an example, let&#39;s say we called for View() after reading 
+# in our data, and we realize that our data is in long format and it needs to be in wide.
+## CCTG_Data_Long &lt;- read.csv(&quot;fake_longitudinal_data.csv&quot;, header=T, sep=&quot;,&quot;, na.strings=c(&quot;NA&quot;, &quot;888&quot;, &quot;999&quot;))
+
+## CCTG_Data_Wide &lt;- reshape(CCTG_Data_Long, idvar = &quot;pid&quot;, timevar = &quot;visit_cycle&quot;, direction = &quot;wide&quot;)
+
+# FORLOOPS !!!
+
+# Complex example of reshape where &quot;instances&quot; of a measure need to be assigned with 
+# for loop!
+# Let&#39;s break down each point in this long function.Let&#39;s say our problem is that we 
+# are trying to convert long to wide, but we don&#39;t have a &#39;marker&#39; or way of assigning 
+# our data to a certain visit, whether it be their first or fourth. In order to convert 
+# to wide format, the computer needs to know
+
+# reading in data
+## Contact_Log_Long &lt;- read.csv(&quot;fake_contact_log.csv&quot;, header=T, sep=&quot;,&quot;, 
+##                             na.strings=c(&quot;NA&quot;, &quot;888&quot;, &quot;999&quot;))
+## turning Contact_Num into missing values
+## Contact_Log_Long$Contact_Num &lt;- NA
+
+## for(x in 1:length(Contact_Log_Long$pid)){
+##   if (x == 1)
+##     {Contact_Log_Long$Contact_Num[x] = 1}
+##  else if (Contact_Log_Long$pid[x] == Contact_Log_Long$pid[x-1]) 
+##  {Contact_Log_Long$Contact_Num[x] = Contact_Log_Long$Contact_Num[x-1] + 1}
+##  else if (Contact_Log_Long$pid[x] != Contact_Log_Long$pid[x-1]) 
+##  {Contact_Log_Long$Contact_Num[x] = 1}
+##  }
+
+## MI_Data_Wide &lt;- reshape(Contact_Log_Long, idvar = &quot;pid&quot;, timevar = &quot;Contact_Num&quot;, direction = &quot;wide&quot;)</code></pre>
 </div>
 <div id="mutate" class="section level3">
 <h3>mutate()</h3>
-<pre class="r"><code># coming from dplyr, the primary purpose of mutate() is to add new columns to a data frame based on calculations or transformations applied to existing columns. It allows you to perform various operations, such as mathematical calculations, conditional operations, string manipulations, and more. LEARN THIS FUNCTION</code></pre>
+<pre class="r"><code># coming from dplyr, the primary purpose of mutate() is to add new columns to a data 
+# frame based on calculations or transformations applied to existing columns. It allows 
+# you to perform various operations, such as mathematical calculations, conditional 
+# operations, string manipulations, and more. LEARN THIS FUNCTION</code></pre>
+</div>
+<div id="during-session-reflection" class="section level3">
+<h3>DURING-Session REFLECTION</h3>
+<div id="section" class="section level5">
+<h5></h5>
+</div>
+</div>
+<div id="post-session-reflection" class="section level3">
+<h3>POST-Session REFLECTION</h3>
+<div id="tbd.." class="section level5">
+<h5>TBD..</h5>
+</div>
 </div>
 </div>
 
